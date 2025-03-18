@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enhanced Interactive Transcript Navigator</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333;
+      --accent-color: #007BFF;
+      --sidebar-bg: #f9f9f9;
+      --highlight-bg: #ffffcc;
+    }
+    [data-theme="dark"] {
+      --bg-color: #222;
+      --text-color: #ddd;
+      --accent-color: #66B2FF;
+      --sidebar-bg: #333;
+      --highlight-bg: #555500;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    header {
+      background-color: var(--accent-color);
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    header button {
+      background-color: #fff;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 50px);
+    }
+    .sidebar {
+      width: 35%;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .content {
+      width: 65%;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 5px;
+    }
+    .in-depth {
+      margin-left: 10px;
+      font-size: 14px;
+      color: var(--text-color);
+      margin-bottom: 10px;
+    }
+    .context-item {
+      margin-left: 20px;
+      cursor: pointer;
+      padding: 5px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      margin-bottom: 5px;
+      position: relative;
+    }
+    .context-item:hover {
+      background-color: #f0f0f0;
+      border-color: #ddd;
+    }
+    .context-item[data-theme="dark"]:hover {
+      background-color: #444;
+    }
+    .details-container {
+      margin-left: 20px;
+      font-size: 13px;
+      color: var(--text-color);
+    }
+    .transcript-segment {
+      margin: 20px 0;
+      padding: 10px;
+      border-left: 4px solid var(--accent-color);
+      transition: background-color 0.3s ease;
+    }
+    .highlight {
+      background-color: var(--highlight-bg);
+    }
+    details {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
+    /* Search Filter */
+    .search-container {
+      margin-bottom: 15px;
+    }
+    .search-container input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+    /* Scroll-to-top Button */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      background-color: var(--accent-color);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    /* Progress Bar */
+    .progress-container {
+      position: sticky;
+      top: 0;
+      background-color: #ccc;
+      height: 5px;
+      width: 100%;
+    }
+    .progress-bar {
+      height: 5px;
+      background-color: var(--accent-color);
+      width: 0%;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <header>
+    <h1>Interactive Transcript Navigator</h1>
+    <button id="themeToggle">Switch to Dark Mode</button>
+  </header>
+  <div class="container">
+    <!-- Sidebar: Summary Navigator with Search Filter -->
+    <div class="sidebar">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search sections or contexts..." />
+      </div>
+      <div id="summary"></div>
+    </div>
+    <!-- Content: Transcript and Progress Bar -->
+    <div class="content" id="transcript">
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <h2>Transcript</h2>
+      <!-- Transcript segments -->
+      <div id="segment-1" class="transcript-segment">
+        <strong>[00:00 - 05:00] Meeting Kickoff:</strong>
+        <p>
+          Moderator: Good morning everyone, and welcome to our weekly team meeting.
+          Today, we'll cover project updates, budget review, and upcoming deadlines.
+        </p>
+      </div>
+      <div id="segment-2" class="transcript-segment">
+        <strong>[05:00 - 15:00] Budget Discussion:</strong>
+        <p>
+          Bob: Regarding the budget, I've noticed we might be overspending in the marketing segment.
+          We need to revisit our projections and adjust our allocations.
+        </p>
+      </div>
+      <div id="segment-3" class="transcript-segment">
+        <strong>[15:00 - 25:00] Operational Suggestions:</strong>
+        <p>
+          Carol: I agree with Bob's observations. Additionally, I have some suggestions for streamlining our operations.
+          Perhaps we can cut down on unnecessary expenses and improve efficiency.
+        </p>
+      </div>
+      <div id="segment-4" class="transcript-segment">
+        <strong>[25:00 - 30:00] Next Steps:</strong>
+        <p>
+          Moderator: Thank you all for your updates. Let's move on to discuss the upcoming project deadlines.
+          Alice: Our next milestone is set for the end of the month. We need to ensure all teams are aligned.
+          Bob: I'll coordinate with the finance team to review the budget details.
+          Carol: I'll prepare a detailed plan for the operational changes.
+          Moderator: Great. Let's reconvene next week to track our progress. Meeting adjourned.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <button id="scrollTopBtn" title="Scroll to Top">↑</button>
+
+  <script>
+    // Sample structured summary data with in-depth explanations
+    const summaryData = [
+      {
+        section_title: "Meeting Kickoff",
+        in_depth_explanation: "Introduces the meeting, outlines the agenda, and sets expectations for discussion.",
+        contexts: [
+          {
+            context_title: "Introduction and Agenda",
+            summary: "Introduced the meeting purpose and agenda.",
+            detailed_explanation: "The moderator welcomed participants and detailed the agenda, covering project updates, budget discussions, and upcoming deadlines.",
+            transcript_segment: "segment-1",
+            transcript_excerpt: "Good morning everyone, and welcome to our weekly team meeting..."
+          }
+        ]
+      },
+      {
+        section_title: "Budget Discussion & Operational Suggestions",
+        in_depth_explanation: "Covers discussions on budget concerns and suggestions for operational improvements.",
+        contexts: [
+          {
+            context_title: "Budget Oversight",
+            summary: "Discussed overspending and adjustments.",
+            detailed_explanation: "Bob raised concerns about overspending in marketing, prompting a discussion on revising budget projections.",
+            transcript_segment: "segment-2",
+            transcript_excerpt: "I've noticed we might be overspending in the marketing segment..."
+          },
+          {
+            context_title: "Operational Improvements",
+            summary: "Outlined suggestions for streamlining operations.",
+            detailed_explanation: "Carol provided recommendations for reducing expenses and increasing operational efficiency.",
+            transcript_segment: "segment-3",
+            transcript_excerpt: "I have some suggestions for streamlining our operations..."
+          }
+        ]
+      },
+      {
+        section_title: "Next Steps",
+        in_depth_explanation: "Focuses on action items, setting milestones, and delegating responsibilities.",
+        contexts: [
+          {
+            context_title: "Action Items",
+            summary: "Reviewed upcoming milestones and assigned tasks.",
+            detailed_explanation: "The moderator and team discussed deadlines and responsibilities to ensure clear next steps.",
+            transcript_segment: "segment-4",
+            transcript_excerpt: "Let's move on to discuss the upcoming project deadlines..."
+          }
+        ]
+      }
+    ];
+
+    // Build the summary navigator with search filtering
+    function buildSummary(filter = "") {
+      const summaryContainer = document.getElementById("summary");
+      summaryContainer.innerHTML = "";
+      summaryData.forEach(section => {
+        // Filter check for section title and in-depth explanation
+        if (
+          section.section_title.toLowerCase().includes(filter) ||
+          section.in_depth_explanation.toLowerCase().includes(filter)
+        ) {
+          const sectionDiv = document.createElement("div");
+          sectionDiv.className = "section-title";
+          sectionDiv.textContent = section.section_title;
+          summaryContainer.appendChild(sectionDiv);
+
+          const sectionExplanation = document.createElement("div");
+          sectionExplanation.className = "in-depth";
+          sectionExplanation.textContent = section.in_depth_explanation;
+          summaryContainer.appendChild(sectionExplanation);
+        }
+        // Iterate contexts with filter
+        section.contexts.forEach(context => {
+          if (
+            context.context_title.toLowerCase().includes(filter) ||
+            context.summary.toLowerCase().includes(filter) ||
+            context.detailed_explanation.toLowerCase().includes(filter)
+          ) {
+            const contextDiv = document.createElement("div");
+            contextDiv.className = "context-item";
+            contextDiv.textContent = context.context_title + ": " + context.summary;
+            contextDiv.dataset.segment = context.transcript_segment;
+            contextDiv.title = context.detailed_explanation; // Tooltip
+
+            const detailsEl = document.createElement("details");
+            detailsEl.className = "details-container";
+            const summaryEl = document.createElement("summary");
+            summaryEl.textContent = "Show Detailed Explanation";
+            const detailedDiv = document.createElement("div");
+            detailedDiv.textContent = context.detailed_explanation;
+            detailsEl.appendChild(summaryEl);
+            detailsEl.appendChild(detailedDiv);
+            contextDiv.appendChild(detailsEl);
+
+            contextDiv.addEventListener("click", (e) => {
+              // Prevent triggering when clicking the summary inside details
+              if(e.target.tagName.toLowerCase() === "summary") return;
+              document.querySelectorAll(".transcript-segment").forEach(seg => seg.classList.remove("highlight"));
+              const target = document.getElementById(context.transcript_segment);
+              if (target) {
+                target.classList.add("highlight");
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            });
+            summaryContainer.appendChild(contextDiv);
+          }
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      buildSummary();
+
+      // Search filter functionality
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("input", (e) => {
+        const filter = e.target.value.trim().toLowerCase();
+        buildSummary(filter);
+      });
+
+      // Theme toggle
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+        document.body.setAttribute("data-theme", newTheme);
+        themeToggle.textContent = newTheme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode";
+      });
+
+      // Scroll-to-top button
+      const scrollTopBtn = document.getElementById("scrollTopBtn");
+      window.addEventListener("scroll", () => {
+        if (document.documentElement.scrollTop > 200) {
+          scrollTopBtn.style.display = "block";
+        } else {
+          scrollTopBtn.style.display = "none";
+        }
+      });
+      scrollTopBtn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      // Progress bar in transcript pane
+      const progressBar = document.getElementById("progressBar");
+      const transcriptDiv = document.getElementById("transcript");
+      transcriptDiv.addEventListener("scroll", () => {
+        const scrollTop = transcriptDiv.scrollTop;
+        const scrollHeight = transcriptDiv.scrollHeight - transcriptDiv.clientHeight;
+        const scrollPercent = (scrollTop / scrollHeight) * 100;
+        progressBar.style.width = scrollPercent + "%";
+      });
+    });
+  </script>
+</body>
+</html>
